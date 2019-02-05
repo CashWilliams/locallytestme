@@ -2,7 +2,7 @@
 set -e
 
 # Download the latest stable release of Drupal.
-DRUPAL_DOWNLOAD_URL="https://www.drupal.org/download-latest/tar.gz"
+DRUPAL_DOWNLOAD_URL="https://ftp.drupal.org/files/projects/drupal-7.63.tar.gz"
 DRUPAL_HASH_SALT=`php -r "echo bin2hex(random_bytes(25));"`
 
 echo "Removing any existing files inside /var/www/localhost..."
@@ -28,7 +28,6 @@ cat <<EOF >> /var/www/localhost/web/sites/default/settings.php
   'namespace' => 'Drupal\\\\Core\\\\Database\\\\Driver\\\\mysql',
   'driver' => 'mysql',
 );
-\$config_directories['sync'] = '../config/sync';
 \$settings['hash_salt'] = '$DRUPAL_HASH_SALT';
 EOF
 
