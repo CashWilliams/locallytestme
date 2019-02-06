@@ -19,14 +19,10 @@ echo "Configuring settings.php with environment variables..."
 cp /var/www/localhost/web/sites/default/default.settings.php /var/www/localhost/web/sites/default/settings.php
 cat <<EOF >> /var/www/localhost/web/sites/default/settings.php
 \$databases['default']['default'] = array (
-  'database' => 'drupal',
-  'username' => 'drupal',
-  'password' => 'drupal',
+  'database' => '/var/sqlite/sqlite',
   'prefix' => '',
-  'host' => 'localhost',
-  'port' => '3306',
-  'namespace' => 'Drupal\\\\Core\\\\Database\\\\Driver\\\\mysql',
-  'driver' => 'mysql',
+  'namespace' => 'Drupal\\Core\\Database\\Driver\\sqlite',
+  'driver' => 'sqlite',
 );
 \$config_directories['sync'] = '../config/sync';
 \$settings['hash_salt'] = '$DRUPAL_HASH_SALT';

@@ -9,8 +9,7 @@ RUN set -ex \
 		libpng-dev \
 	    curl \
 	    git \
-	    mariadb \
-	    mariadb-client \
+		sqlite \
 	    php7-apache2 \
 	    php7-cli \
 	    php7-ctype \
@@ -22,7 +21,7 @@ RUN set -ex \
 	    php7-mbstring \
 	    php7-opcache \
 	    php7-openssl \
-	    php7-pdo_mysql \
+		php7-pdo_sqlite \
 	    php7-phar \
 	    php7-tokenizer \
 	    php7-xml \
@@ -32,10 +31,6 @@ RUN set -ex \
 	&& \
 	# Composer
 	curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
-    # Multirun
-	curl -Ls https://github.com/nicolas-van/multirun/releases/download/0.3.0/multirun-alpine-0.3.0.tar.gz | tar -zxv -C /usr/local/bin && \
-    # MySQL config
-	mkdir -p /run/mysqld && chown -R mysql:mysql /run/mysqld && \
     # Apache config
 	mkdir -p /run/apache2 && chown -R apache:apache /run/apache2 && \
     sed -ri \
