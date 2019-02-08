@@ -1,23 +1,20 @@
 #!/usr/bin/env sh
 
 # Start mysql to add user
-mysql_install_db --user=mysql
-mysqld --user=mysql &
+echo "Running mysql_install_db..."
+mysql_install_db 1>/dev/null
+echo "Starting temp MySQL..."
+/usr/sbin/mysqld &
 pid="$!"
 
 for i in {15..0}; do
-  if echo 'SELECT 1' | mysql &> /dev/null; then
-    break
+  if echo 'SELECT 1' | mysql 1>/dev/null; then
+      break
   fi
-  echo 'MySQL init process in progress...'
   sleep 2
 done
 
-if [ "$i" = 0 ]; then
-  echo >&2 'MySQL init process failed.'
-  exit 1
-fi
-
+echo "Adding drupal user..."
 mysql <<-EOSQL
   DROP DATABASE IF EXISTS test ;
   CREATE DATABASE drupal;
@@ -26,8 +23,9 @@ mysql <<-EOSQL
 EOSQL
 echo 'FLUSH PRIVILEGES' | mysql
 
+echo "Killing temp MySQL..."
 kill $pid
 
-echo 'MySQL init process done.'
+/bin/sed -i 's/AllowOverride\ None/AllowOverride\ All/g' /etc/apache2/apache2.conf
 
-/run.sh
+eatmydata multirun /apache-foreground.sh /usr/sbin/mysqld

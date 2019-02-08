@@ -1,61 +1,48 @@
-FROM alpine:latest
+FROM ubuntu:18.04
 
-# Basic dependencies
 RUN set -ex \
-	&& apk add --no-cache --virtual .build-deps \
-		coreutils \
-		freetype-dev \
-		libjpeg-turbo-dev \
-		libpng-dev \
-	    curl \
-	    git \
-	    mariadb \
-	    mariadb-client \
-	    php7-apache2 \
-	    php7-cli \
-	    php7-ctype \
-	    php7-curl \
-	    php7-dom \
-	    php7-gd \
-	    php7-iconv \
-	    php7-json \
-	    php7-mbstring \
-	    php7-opcache \
-	    php7-openssl \
-	    php7-pdo_mysql \
-	    php7-phar \
-	    php7-tokenizer \
-	    php7-xml \
-	    php7-xmlwriter \
-	    php7-session \
-	    php7-simplexml \
-	&& \
-	# Composer
-	curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
-    # Multirun
-	curl -Ls https://github.com/nicolas-van/multirun/releases/download/0.3.0/multirun-alpine-0.3.0.tar.gz | tar -zxv -C /usr/local/bin && \
-    # MySQL config
-	mkdir -p /run/mysqld && chown -R mysql:mysql /run/mysqld && \
-    # Apache config
-	mkdir -p /run/apache2 && chown -R apache:apache /run/apache2 && \
-    sed -ri \
-      -e 's!^(\s*CustomLog)\s+\S+!\1 /proc/self/fd/1!g' \
-      -e 's!^(\s*ErrorLog)\s+\S+!\1 /proc/self/fd/2!g' \
-      -e 's#/var/www/localhost/htdocs#/var/www/localhost/web#g' \
-      -e 's#AllowOverride None#AllowOverride All#g' \
-      -e 's!^#LoadModule rewrite_module!LoadModule rewrite_module!' \
-      /etc/apache2/httpd.conf \
-	&& echo "Success"
+	&& apt-get update \
+    && apt-get -q -y dist-upgrade \
+    && DEBIAN_FRONTEND=noninteractive \
+    apt-get -q -y install --no-install-recommends \
+	ca-certificates \
+    apache2 \
+    mariadb-server \
+	mariadb-client \
+	curl \
+	vim-tiny \
+    php \
+	php-gd \
+	php-curl \
+	php-xml \
+	php-mbstring \
+	php-mysql \
+	php-zip \
+    libapache2-mod-php \
+	eatmydata \
+	git \
+	zip \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+	&& ln -s /usr/bin/vim.tiny /usr/bin/vim \
+	&& rm -rf /var/lib/mysql && mkdir -p /var/lib/mysql /var/run/mysqld \
+	&& chown -R mysql:mysql /var/lib/mysql /var/run/mysqld \
+	&& chmod 777 /var/run/mysqld \
+	&& a2enmod rewrite
 
-COPY php.ini /etc/php7/php.ini
-COPY my.cnf /etc/mysql/my.cnf
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN curl -Ls https://github.com/nicolas-van/multirun/releases/download/0.3.0/multirun-ubuntu-0.3.0.tar.gz | tar -zxv -C /usr/local/bin
+
 COPY ./*.sh /
-
 RUN chmod +x /*.sh && sh /init.sh
 
-WORKDIR /var/www/localhost/
+#COPY php.ini "$PHP_INI_DIR/php.ini"
+#COPY my.cnf /etc/mysql/my.cnf
 
-# TODO SSL
 EXPOSE 80
+#EXPOSE 443
+#EXPOSE 3306
 
 ENTRYPOINT ["/entrypoint.sh"]
+#CMD ["multirun /apache-foreground.sh /usr/sbin/mysqld"]
+CMD ["bash"]
