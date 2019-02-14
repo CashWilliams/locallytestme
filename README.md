@@ -1,7 +1,7 @@
 # LocallyTestMe
 
 ## Running tests
-sudo -u www-data php core/scripts/run-tests.sh --url http://localhost --php `which php` --verbose --browser --module book 
+sudo -u www-data php core/scripts/run-tests.sh --url http://localhost --php `which php` --verbose --browser --module help 
 
 # Performance
 
@@ -27,5 +27,3 @@ Test run duration: 1 min 57 sec
 docker run -ti -p "8080:80" --tmpfs /var/lib/mysql 868f1a8d95e6
 php core/scripts/run-tests.sh --url http://localhost --php `which php` --module book
 Test run duration: 1 min 46 sec
-
-

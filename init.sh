@@ -43,28 +43,8 @@ cd /var/www/html/web && curl -s https://www.drupal.org/files/issues/2948700-5.pa
 
 echo "*** Drupal codebase ready..."
 
-# Start mysql to add user
-echo "*** Running mysql_install_db..."
-mysql_install_db 1>/dev/null
-echo "*** Starting temp MySQL..."
-/usr/sbin/mysqld &
-pid="$!"
+echo "*** Configure apache for debuging..."
+ln -sfT /dev/stderr "/var/log/apache2/error.log";
+ln -sfT /dev/stdout "/var/log/apache2/access.log";
+ln -sfT /dev/stderr "/var/log/php/php_errors.log";
 
-for i in {15..0}; do
-  sleep 2
-  if echo 'SELECT 1' | mysql 1>/dev/null; then
-      break
-  fi
-done
-
-echo "*** Adding drupal user..."
-mysql <<-EOSQL
-  DROP DATABASE IF EXISTS test ;
-  CREATE DATABASE drupal;
-  CREATE USER 'drupal'@'localhost' IDENTIFIED BY 'drupal';
-  GRANT ALL PRIVILEGES ON drupal.* TO 'drupal'@'localhost';
-EOSQL
-echo 'FLUSH PRIVILEGES' | mysql
-
-echo "*** Killing temp MySQL..."
-kill $pid

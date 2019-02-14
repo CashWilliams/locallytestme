@@ -9,6 +9,7 @@ RUN set -ex \
     apache2 \
     mariadb-server \
 	mariadb-client \
+	sqlite3 \
 	curl \
 	vim-tiny \
     php \
@@ -19,7 +20,9 @@ RUN set -ex \
 	php-mysql \
 	php-zip \
 	php-uploadprogress \
+	php-sqlite3 \
 	#php-xdebug \
+	php-yaml \
     libapache2-mod-php \
 	eatmydata \
 	git \
@@ -38,13 +41,12 @@ RUN set -ex \
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 RUN curl -Ls https://github.com/nicolas-van/multirun/releases/download/0.3.0/multirun-ubuntu-0.3.0.tar.gz | tar -zxv -C /usr/local/bin
 
-COPY ./*.sh /
+COPY my.cnf /etc/mysql/conf.d/custom.cnf
 COPY ./site.conf /etc/apache2/sites-available/000-default.conf
+
+COPY ./*.sh /
 RUN chmod +x /*.sh && sh /init.sh
 ENV PATH="/var/www/html/vendor/bin/:${PATH}"
-
-#COPY php.ini "$PHP_INI_DIR/php.ini"
-#COPY my.cnf /etc/mysql/my.cnf
 
 WORKDIR /var/www/html/
 
