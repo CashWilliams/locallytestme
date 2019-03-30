@@ -21,7 +21,6 @@ RUN set -ex \
 	php-zip \
 	php-uploadprogress \
 	php-sqlite3 \
-	#php-xdebug \
 	php-yaml \
     libapache2-mod-php \
 	eatmydata \
@@ -30,6 +29,13 @@ RUN set -ex \
 	sudo \
 	wget \
 	patch \
+	gnupg2 \
+	php7.2-dev \
+	autoconf \
+	automake \
+	libtool \
+	m4 \
+	build-essential \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
 	&& ln -s /usr/bin/vim.tiny /usr/bin/vim \
@@ -37,6 +43,15 @@ RUN set -ex \
 	&& chown -R mysql:mysql /var/lib/mysql /var/run/mysqld \
 	&& chmod 777 /var/run/mysqld \
 	&& a2enmod rewrite
+	
+RUN git clone https://github.com/tideways/php-xhprof-extension.git /tmp/php-xhprof-extension \
+	&& cd /tmp/php-xhprof-extension \
+	&& phpize \
+	&& ./configure \
+	&& make \
+	&& make install \
+	&& echo "extension=tideways_xhprof.so" > /etc/php/7.2/cli/conf.d/20-xhprof.ini \
+	&& echo "extension=tideways_xhprof.so" > /etc/php/7.2/apache2/conf.d/20-xhprof.ini
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 RUN curl -Ls https://github.com/nicolas-van/multirun/releases/download/0.3.0/multirun-ubuntu-0.3.0.tar.gz | tar -zxv -C /usr/local/bin
