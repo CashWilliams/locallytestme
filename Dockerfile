@@ -37,6 +37,7 @@ RUN set -ex \
     m4 \
     supervisor \
     build-essential \
+    zip \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
   && ln -s /usr/bin/vim.tiny /usr/bin/vim \
