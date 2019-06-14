@@ -1,11 +1,9 @@
 #!/usr/bin/env sh
 
-# Start mysql to add user
-echo "*** Running mysql_install_db..."
-mysql_install_db 1>/dev/null
+# This is not baked into the container to allow tmpfs volume storage of mysql.
 echo "*** Starting temp MySQL..."
-/usr/sbin/mysqld &
-pid="$!"
+mysql_install_db > /dev/null 2>&1
+/usr/bin/mysqld_safe > /dev/null 2>&1 &
 
 for i in {15..0}; do
   sleep 2
@@ -24,6 +22,6 @@ EOSQL
 echo 'FLUSH PRIVILEGES' | mysql
 
 echo "*** Killing temp MySQL..."
-kill $pid
+mysqladmin -uroot shutdown
 
-eatmydata multirun /apache-foreground.sh /usr/sbin/mysqld
+exec supervisord -n -c /etc/supervisor/supervisord.conf
