@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:24.04
 
 # Install base Ubuntu packages.
 RUN set -ex \
@@ -30,7 +30,7 @@ RUN set -ex \
     wget \
     patch \
     gnupg2 \
-    php7.2-dev \
+    php8.3-dev \
     autoconf \
     automake \
     libtool \
@@ -46,28 +46,21 @@ RUN set -ex \
   && chmod 777 /var/run/mysqld \
   && a2enmod rewrite
 
-# Install Tideways xhprof extension.
-RUN git clone https://github.com/tideways/php-xhprof-extension.git /tmp/php-xhprof-extension \
-	&& cd /tmp/php-xhprof-extension \
-	&& phpize \
-	&& ./configure \
-	&& make \
-	&& make install \
-	&& echo "extension=tideways_xhprof.so" > /etc/php/7.2/cli/conf.d/20-xhprof.ini \
-	&& echo "extension=tideways_xhprof.so" > /etc/php/7.2/apache2/conf.d/20-xhprof.ini
-
 # Install Composer.
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 ENV PATH="/var/www/html/vendor/bin/:${PATH}"
-# Install Composer parallel install plugin.
-RUN composer global require hirak/prestissimo
 
 # Copy custom mysql conf.
-COPY conf/my.cnf /etc/mysql/conf.d/custom.cnf
+COPY conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
+
 # Copy default apache vhost.
 COPY conf/site.conf /etc/apache2/sites-available/000-default.conf
+
 # Using supervisor to run both apache and mysql.
 COPY conf/supervisord.conf /etc/supervisor/supervisord.conf
+
+# Copy custom php.ini
+COPY conf/php.ini /etc/php/8.3/apache2/php.ini
 
 # Copy start scripts.
 COPY scripts/run.sh /
@@ -77,10 +70,10 @@ COPY scripts/start-apache2.sh /
 COPY scripts/start-mysqld.sh /
 RUN chmod +x /*.sh
 RUN sh /init.sh
+COPY conf/settings.php /var/www/html/web/sites/default/settings.php
 
 WORKDIR /var/www/html/
 
 EXPOSE 80
-#EXPOSE 443
 
 ENTRYPOINT ["/entrypoint.sh"]

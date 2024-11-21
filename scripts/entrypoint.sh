@@ -24,4 +24,8 @@ echo 'FLUSH PRIVILEGES' | mysql
 echo "*** Killing temp MySQL..."
 mysqladmin -uroot shutdown
 
+mkdir /var/www/html/web/sites/default/files
+chmod a+w /var/www/html/web/sites/default/files
+chmod a+w /var/www/html/web/sites/default/settings.php
+tr -dc A-Za-z0-9 </dev/urandom | head -c 13 > /var/www/html/salt.txt
 exec supervisord -n -c /etc/supervisor/supervisord.conf
